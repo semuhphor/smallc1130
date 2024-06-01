@@ -2,6 +2,52 @@
 ** CC.H -- Symbol Definitions for Small-C compiler.
 */
 
+#define YES      1  /* true */
+#define NO       0  /* false */
+#define SC_ERR   ((FILE *) (-2))  /* return value for errors */
+#define SC_EOF   ((FILE *) (-1))  /* return value for end-of-file */
+#define abort exit
+
+void parse (void);
+int dodeclare (int class);
+void declglb (int type, int class);
+void initials (int size, int ident, int dim);
+void init (int size, int ident, int * dim);
+void doinclude (void);
+void dodefine (void);
+char putmac (char c);
+void dofunction (void);
+void doargs (int type);
+int decl (int type, int aid, int *id, int *sz);
+int statement (void);
+void declloc(int type);
+void compound (void);
+void doif (void);
+char * findglb (char * sname);
+char * findloc (char * sname);
+char * nextsym(char * entry);
+void dowhile (void);
+void doexpr (int use);
+void dodo (void);
+void dofor (void);
+void doswitch (void);
+void docase (void);
+void dodefault (void);
+void dogoto (void);
+char * addsym(char * sname, int id, int type, int size, int value, char **lgpp, int class);
+int addlabel (int def);
+void doreturn (void);
+void dobreak (void);
+void docont (void);
+void doasm (void);
+void doexpr (int use);
+void ask (void);
+void openfile (void);
+void mustfile (void);
+FILE * mustopen (char * fn, char * mode);
+int * readwhile(int * ptr);
+int getarg(int n, char * s, int size, int argc, char * argv[]);
+
 /*
 ** machine dependent parameters
 */
