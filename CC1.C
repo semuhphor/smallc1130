@@ -8,6 +8,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
+#include "STDIO.H"
 #include "NOTICE.H"
 #include "CC.H"
 
@@ -23,10 +24,10 @@ int swdefault;/* default label #; else 0 */
 int*swnext;   /* address of next entry */
 int*swend;    /* address of last entry */
 int*stage;    /* staging buffer address */
-int*wq;       /* while queue */
+char *wq;       /* while queue */
 int argcs;    /* static argc */
 char **argvs;    /* static argv */
-int*wqptr;    /* ptr to next entry */
+char *wqptr;    /* ptr to next entry */
 int litptr;   /* ptr to next entry */
 int macptr;   /* macro buffer index */
 int pptr;     /* ptr to parsing buffer */
@@ -53,32 +54,31 @@ int ccode   = YES; /* true while parsing C code */
 int*snext;    /* next addr in stage */
 int*stail;    /* last addr of data in stage */
 int*slast;    /* last addr in stage */
-int listfp;   /* file pointer to list device */
+FILE * listfp;   /* file pointer to list device */
 int lastst;   /* last parsed statement type */
 int oldseg;   /* current segment (0, DATASEG, CODESEG) */
 int symno = 1;/* symbol number */
 
-char
-   optimize, /* optimize output of staging buffer? */
-   alarm,    /* audible alarm on errors? */
-   monitor,  /* monitor function headers? */
-   pause,    /* pause for operator on errors? */
-  *symtab,   /* symbol table */
-  *litq,     /* literal pool */
-  *macn,     /* macro name buffer */
-  *macq,     /* macro string buffer */
-  *pline,    /* parsing buffer */
-  *mline,    /* macro buffer */
-  *line,     /* ptr to pline or mline */
-  *lptr,     /* ptr to current character in "line" */
-  *glbptr,   /* global symbol table */
-  *locptr,   /* next local symbol table entry */
-   quote[2] = {'"'}, /* literal string for '"' */
-  *cptr,     /* work ptrs to any char buffer */
-  *cptr2,
-  *cptr3,
-   msname[NAMESIZE],   /* macro symbol name */
-   ssname[NAMESIZE];   /* static symbol name */
+char optimize; /* optimize output of staging buffer? */
+char alarm;    /* audible alarm on errors? */
+char monitor;  /* monitor function headers? */
+char pause;    /* pause for operator on errors? */
+char *symtab;   /* symbol table */
+char *litq;     /* literal pool */
+char *macn;     /* macro name buffer */
+char *macq;     /* macro string buffer */
+char *pline;    /* parsing buffer */
+char *mline;    /* macro buffer */
+char *line;     /* ptr to pline or mline */
+char *lptr;     /* ptr to current character in "line" */
+char *glbptr;   /* global symbol table */
+char *locptr;   /* next local symbol table entry */
+char quote[2] = {'"'}; /* literal string for '"' */
+char *cptr;     /* work ptrs to any char buffer */
+char *cptr2;
+char *cptr3;
+char msname[NAMESIZE];   /* macro symbol name */
+char ssname[NAMESIZE];   /* static symbol name */
 
 int op[16] = {   /* p-codes of signed binary operators */
    OR12,                        /* level5 */
@@ -1020,7 +1020,7 @@ void doreturn (void) {
 }
 
 void dobreak (void) {
-  int *ptr;
+  char *ptr;
 
   if ((ptr = readwhile (wqptr)) == 0)
     return;
@@ -1030,7 +1030,7 @@ void dobreak (void) {
 }
 
 void docont (void) {
-  int *ptr;
+  char *ptr;
 
   ptr = wqptr;
   while (1) {
@@ -1049,7 +1049,7 @@ void doasm (void) {
   ccode = 0;           /* mark mode as "asm" */
  
   while (1) {
-    inline ();
+    inln ();
 
     if (match ("#endasm"))
       break;
@@ -1093,7 +1093,8 @@ void ask (void) {
 
   int i;
 
-  i = listfp = nxtlab = 0;
+  i = nxtlab = 0;
+  listfp = NULL;
   output = stdout;
   optimize = YES;
   alarm = monitor = pause = NO;
@@ -1103,12 +1104,15 @@ void ask (void) {
     if (line[0] != '-' && line[0] != '/')
       continue;
    
+// XX lose "-L unit_number"; needs to be "-L filename", and do the proper fopen
+#if 0
     if (toupper (line[1]) == 'L'
         && isdigit (line[2])
         && line[3] <= ' ') {
       listfp = line[2]-'0';
       continue;
     }
+#endif
    
     if (toupper (line[1]) == 'N'
         && toupper (line[2]) == 'O'

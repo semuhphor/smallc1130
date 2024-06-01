@@ -4,11 +4,14 @@ CPATH = .
 
 all : cc1130
 
-cc1130 : CC1.o
+cc1130 : CC1.o CC2.o
 	clang CC1.o -o cc1130
 
-CC1.o : CC1.C
+CC1.o : CC1.C CC.H STDIO.H
 	$(CC) $(CCFLAGS) -c CC1.C
+
+CC2.o : CC2.C CC.H STDIO.H
+	$(CC) $(CCFLAGS) -c CC2.C
 
 #cc  cc1 -m -a -p
 #if errorlevel 1 goto exit
