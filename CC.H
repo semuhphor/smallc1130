@@ -280,7 +280,7 @@ extern char *macq;     /* macro string buffer */
 extern char *pline;    /* parsing buffer */
 extern char *mline;    /* macro buffer */
 extern char optimize; /* optimize output of staging buffer? */
-extern char alarm;    /* audible alarm on errors? */
+extern char alrm;    /* audible alarm on errors? */
 extern char *glbptr;   /* global symbol table */
 extern char *line;     /* ptr to pline or mline */
 extern char *lptr;     /* ptr to current character in "line" */
@@ -289,7 +289,7 @@ extern char *cptr2;
 extern char *cptr3;
 extern char *locptr;   /* next local symbol table entry */
 extern char msname[NAMESIZE];   /* macro symbol name */
-extern char pause;    /* pause for operator on errors? */
+extern char paus;    /* pause for operator on errors? */
 extern char quote[2]; /* literal string for '"' */
 extern char *wq;       /* while queue */
 extern int ccode; /* true while parsing C code */

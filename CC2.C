@@ -321,7 +321,8 @@ void blanks (void) {
 }
 
 int white (void) {
-  avail (YES);  /* abort on stack/symbol table overflow */
+  // XXX punt
+  // avail (YES);  /* abort on stack/symbol table overflow */
   return *lptr <= ' ' && *lptr;
 }
 
@@ -558,9 +559,9 @@ void error (char msg[]) {
     errflag = 1;
   lout (line, stderr);
   errout (msg, stderr);
-  if (alarm)
+  if (alrm)
     fputc (7, stderr);
-  if (pause)
+  if (paus)
     while (fgetc (stderr) != NEWLINE);
   if (listfp > 0)
     errout (msg, listfp);

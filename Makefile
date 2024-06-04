@@ -6,7 +6,7 @@ LDFLAGS = -m32
 all : cc1130
 
 cc1130 : CC1.o CC2.o CC3.o CC4.o GETARG.o
-	clang $(LDFLAGS) CC1.o CC2.o CC3.o CC4.o -o cc1130
+	clang $(LDFLAGS) CC1.o CC2.o CC3.o CC4.o GETARG.o -o cc1130
 
 CC1.o : CC1.C CC.H STDIO.H
 	$(CC) $(CCFLAGS) -c CC1.C

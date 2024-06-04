@@ -8,6 +8,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "STDIO.H"
 #include "NOTICE.H"
 #include "CC.H"
@@ -60,9 +61,9 @@ int oldseg;   /* current segment (0, DATASEG, CODESEG) */
 int symno = 1;/* symbol number */
 
 char optimize; /* optimize output of staging buffer? */
-char alarm;    /* audible alarm on errors? */
+char alrm;    /* audible alarm on errors? */
 static char monitor;  /* monitor function headers? */
-char pause;    /* pause for operator on errors? */
+char paus;    /* pause for operator on errors? */
 char *symtab;   /* symbol table */
 char *litq;     /* literal pool */
 char *macn;     /* macro name buffer */
@@ -1116,7 +1117,7 @@ void ask (void) {
   listfp = NULL;
   output = stdout;
   optimize = YES;
-  alarm = monitor = pause = NO;
+  alrm = monitor = paus = NO;
   line = mline;
 
   while (getarg (++i, line, LINESIZE, argcs, argvs) != -1) {
@@ -1142,7 +1143,7 @@ void ask (void) {
    
     if (line[2] <= ' ') {
       if (toupper (line[1]) == 'A') {
-        alarm   = YES;
+        alrm   = YES;
         continue;
       }
      
@@ -1152,7 +1153,7 @@ void ask (void) {
       }
 
       if (toupper (line[1]) == 'P') {
-        pause   = YES;
+        paus   = YES;
         continue;
       }
     }
@@ -1193,7 +1194,7 @@ void openfile (void) {                /* entire function revised */
       strcpy (pline + i, ".C");
    
     input = mustopen (pline, "r");
-    if (!files && iscons (stdout)) {
+    if (!files && /*iscons (stdout)*/ isatty (fileno (stdout))) { // XXX replaced iscons 
       strcpy (outfn + j, ".ASM");
       output = mustopen (outfn, "w");
     }
