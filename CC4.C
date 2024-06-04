@@ -418,7 +418,7 @@ trailer()  {
 /*
 ** remember where we are in the queue in case we have to back up.
 */
-setstage(before, start) int *before, *start; {
+void setstage (int ** before, int ** start) {
   if((*before = snext) == 0)
     snext = stage;
   *start = snext;
@@ -427,7 +427,7 @@ setstage(before, start) int *before, *start; {
 /*
 ** generate code in staging buffer.
 */
-gen(pcode, value) int pcode, value; {
+void gen (int pcode, int value) {
   int newcsp;
   switch(pcode) {
     case GETb1pu:
@@ -462,7 +462,7 @@ gen(pcode, value) int pcode, value; {
 ** If start = 0, throw away contents.
 ** If before != 0, don't dump queue yet.
 */
-clearstage(before, start) int *before, *start; {
+void clearstage (int * before, int * start) {
   if(before) {
     snext = before;
     return;
@@ -499,17 +499,13 @@ dumpstage() {
 ** change to a new segment
 ** may be called with NULL, CODESEG, or DATASEG
 */
-toseg(newseg) 
-int newseg;
-{
+void toseg (int newseg) {
 }
 
 /*
 ** declare entry point
 */
-public(ident) 
-int ident;
-{
+void public (int ident) {
 char symnum[6];
 char *cp;
 	newline();
@@ -540,10 +536,7 @@ char *cp;
 /*
 ** declare external reference
 */
-external(name, size, ident) 
-	char *name; 
-	int size, ident; 
-{
+void external (char *name, int size, int ident) {
 }
 
 /*
@@ -557,14 +550,14 @@ outsize(size, ident)
 /*
 ** point to following object(s)
 */
-point() {
+void point (void) {
   outline(" DW $+2");
   }
 
 /*
 ** dump the literal pool
 */
-dumplits(size) int size; {
+void dumplits (int size) {
   int k;
   k = 0;
   while (k < litptr) {
@@ -577,7 +570,7 @@ dumplits(size) int size; {
 /*
 ** dump zeroes for default initial values
 */
-dumpzero(size, count) int size, count; {
+void dumpzero (int size, int count) {
   if(count > 0) {
     if(size == 1)
          gen(BYTEr0, count);

@@ -304,6 +304,7 @@ extern int macptr;   /* macro buffer index */
 extern int nch;      /* next character of input line */
 extern int nxtlab;   /* next avail label # */
 extern int op[16];   /* p-codes of signed binary operators */
+extern int op2[16];  /* p-codes of unsigned binary operators */
 extern int opindex;  /* index to matched operator */
 extern int opsize;   /* size of operator in characters */
 extern FILE * output;   /* fd for output file */
@@ -311,6 +312,11 @@ extern int pptr;     /* ptr to parsing buffer */
 extern int skiplevel;/* level at which #if... skipping started */
 extern char *wqptr;    /* ptr to next entry */
 extern int symno;/* symbol number */
+extern char *litq;
+extern char ssname[NAMESIZE];   /* static symbol name */
+extern int litlab;   /* label # assigned to literal pool */
+extern int litptr;   /* ptr to next entry */
+extern int *snext;    /* next addr in stage */
 
 void parse (void);
 int dodeclare (int class);
@@ -321,30 +327,10 @@ void doinclude (void);
 void dodefine (void);
 char putmac (char c);
 void dofunction (void);
-void doargs (int type);
-int decl (int type, int aid, int *id, int *sz);
-int statement (void);
-void declloc(int type);
-void compound (void);
-void doif (void);
 char * findglb (char * sname);
 char * findloc (char * sname);
 char * nextsym (char * entry);
-void dowhile (void);
-void doexpr (int use);
-void dodo (void);
-void dofor (void);
-void doswitch (void);
-void docase (void);
-void dodefault (void);
-void dogoto (void);
 char * addsym(char * sname, int id, int type, int size, int value, char **lgpp, int class);
-int addlabel (int def);
-void doreturn (void);
-void dobreak (void);
-void docont (void);
-void doasm (void);
-void doexpr (int use);
 void ask (void);
 void openfile (void);
 void mustfile (void);
@@ -384,5 +370,26 @@ void error (char msg[]);
 void noiferr (void);
 void errout (char * msg, FILE * fp);
 void addwhile (int ptr[]);
+int constexpr (int *val);
+void expression (int *con, int *val);
+void test (int label, int parens);
+int string (int *offset);
+void header (void);
+void setcodes (void);
+void trailer (void);
+void external (char *name, int size, int ident);
+void public (int ident);
+void stowlit (int value, int size);
+void dumplits (int size);
+void dumpzero (int size, int count);
+void point (void);
+void gen (int pcode, int value);
+void toseg (int newseg);
+void delwhile (void);
+void setstage (int ** before, int ** start);
+void clearstage (int * before, int * start);
+int iscons (FILE * fd);
+void poll (int pause);
+int avail (int abort);
 
 

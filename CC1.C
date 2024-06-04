@@ -102,6 +102,28 @@ int op2[16] = {  /* p-codes of unsigned binary operators */
    MUL12u, DIV12u, MOD12u       /* level12 */
 };
 
+static int needsub (void);
+static int dolabel (void);
+static void doargs (int type);
+static int decl (int type, int aid, int *id, int *sz);
+static int statement (void);
+static void declloc (int type);
+static void compound (void);
+static void doif (void);
+static void dowhile (void);
+static void dodo (void);
+static void dofor (void);
+static void doswitch (void);
+static void docase (void);
+static void dodefault (void);
+static void dogoto (void);
+static int addlabel (int def);
+static void doreturn (void);
+static void dobreak (void);
+static void docont (void);
+static void doasm (void);
+static void doexpr (int use);
+
 /*
 ** execution begins here
 */
@@ -315,9 +337,8 @@ void init (int size, int ident, int * dim) {
 /*
 ** get required array size
 */
-needsub () 
-{
-int val;
+static int needsub (void) {
+  int val;
  
   if (match ("]"))
     return 0;      /* null size */
@@ -325,8 +346,7 @@ int val;
   if (constexpr (& val) == 0)
     val = 1;
 
-  if (val < 0)
-  {
+  if (val < 0) {
     error ("negative size illegal");
     val = -val;
   }
@@ -537,9 +557,9 @@ void dofunction (void) {
 /*
 ** declare argument types
 */
-void doargs (int type) {
-int id, sz;
-char c, *ptr;
+static void doargs (int type) {
+  int id, sz;
+  char c, *ptr;
 
   while (1)
   {
@@ -572,7 +592,7 @@ char c, *ptr;
 /*
 ** parse next local or argument declaration
 */
-int decl (int type, int aid, int *id, int *sz) {
+static int decl (int type, int aid, int *id, int *sz) {
   int n, p;
 
   if (match ("("))
@@ -623,7 +643,7 @@ int decl (int type, int aid, int *id, int *sz) {
 /*
 ** statement parser
 */
-int statement (void) {
+static int statement (void) {
   if (ch == 0 && eof)
     return 0;  // CAC Added '0'
 
@@ -743,7 +763,7 @@ int statement (void) {
 /*
 ** declare local variables
 */
-void declloc (int type) {
+static void declloc (int type) {
   int id, sz;
 
   if (swactive)   
@@ -768,7 +788,7 @@ void declloc (int type) {
   }
 }
 
-void compound (void) {
+static void compound (void) {
   int savcsp;
   char *savloc;
 
@@ -808,7 +828,7 @@ void compound (void) {
   declared = -1;          /* may not declare variables */
 }
 
-void doif (void) {
+static void doif (void) {
   int flab1, flab2;
 
   test (flab1 = getlabel (), YES);  /* get expr, and branch false */
@@ -829,7 +849,7 @@ void doif (void) {
   gen (LABm, flab2);    /* print true label */
 }
 
-void dowhile (void) {
+static void dowhile (void) {
   int wq[4];              /* allocate local queue */
 
   addwhile (wq);           /* add entry to queue for "break" */
@@ -841,7 +861,7 @@ void dowhile (void) {
   delwhile ();             /* delete queue entry */
 }
 
-void dodo (void) {
+static void dodo (void) {
   int wq[4];
 
   addwhile (wq);
@@ -855,7 +875,7 @@ void dodo (void) {
   ns  ();
 }
 
-void dofor (void) {
+static void dofor (void) {
   int wq[4], lab1, lab2;
 
   addwhile (wq);
@@ -891,7 +911,7 @@ void dofor (void) {
   delwhile ();
 }
 
-void doswitch (void) {
+static void doswitch (void) {
   int wq[4], endlab, swact, swdef, *swnex, *swptr;
 
   swact = swactive;
@@ -928,7 +948,7 @@ void doswitch (void) {
   swactive  = swact;
 }
 
-void docase (void) {
+static void docase (void) {
   if (swactive == 0)
     error ("not in switch");
  
@@ -942,7 +962,7 @@ void docase (void) {
   need (":");
 }
 
-void dodefault (void) {
+static void dodefault (void) {
   if (swactive) {
     if (swdefault)
       error ("multiple defaults");
@@ -954,7 +974,7 @@ void dodefault (void) {
   gen (LABm, swdefault = getlabel ());
 }
 
-void dogoto (void) {
+static void dogoto (void) {
   if (nogo > 0)
     error ("not allowed with block-locals");
 
@@ -970,9 +990,8 @@ void dogoto (void) {
   ns ();
 }
 
-dolabel ()
-{
-char *savelptr;
+static int dolabel (void) {
+  char *savelptr;
 
   blanks ();
   savelptr = lptr;
@@ -991,7 +1010,7 @@ char *savelptr;
   return 0;
 }
 
-int addlabel (int def) {
+static int addlabel (int def) {
   if ( (cptr = findloc (ssname))) {
     if (cptr[IDENT] != LABEL)
       error ("not a label");
@@ -1008,7 +1027,7 @@ int addlabel (int def) {
   return getint (cptr+OFFSET, 2);
 }
 
-void doreturn (void) {
+static void doreturn (void) {
   int savcsp;
 
   if (endst () == 0)
@@ -1019,7 +1038,7 @@ void doreturn (void) {
   csp = savcsp;
 }
 
-void dobreak (void) {
+static void dobreak (void) {
   char *ptr;
 
   if ((ptr = readwhile (wqptr)) == 0)
@@ -1029,7 +1048,7 @@ void dobreak (void) {
   gen (JMPm, ptr[WQEXIT]);
 }
 
-void docont (void) {
+static void docont (void) {
   char *ptr;
 
   ptr = wqptr;
@@ -1045,7 +1064,7 @@ void docont (void) {
   gen (JMPm, ptr[WQLOOP]);
 }
 
-void doasm (void) {
+static void doasm (void) {
   ccode = 0;           /* mark mode as "asm" */
  
   while (1) {
@@ -1064,7 +1083,7 @@ void doasm (void) {
   ccode = 1;
 }
 
-void doexpr (int use) {
+static void doexpr (int use) {
   int konst, val;
   int *before, *start;
  
