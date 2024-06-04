@@ -3,7 +3,7 @@ CC = clang
 CCFLAGS = -x c -m32
 LDFLAGS = -m32
 
-all : cc1130
+all : cc1130 test
 
 cc1130 : CC1.o CC2.o CC3.o CC4.o GETARG.o
 	clang $(LDFLAGS) CC1.o CC2.o CC3.o CC4.o GETARG.o -o cc1130
@@ -22,6 +22,9 @@ CC4.o : CC4.C CC.H STDIO.H
 
 GETARG.o : GETARG.C STDIO.H
 	$(CC) $(CCFLAGS) -c GETARG.C
+
+test : cc1130
+	./cc1130 test1.c -m -a -p -no
 
 #cc  cc1 -m -a -p
 #if errorlevel 1 goto exit
