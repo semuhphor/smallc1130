@@ -4,19 +4,25 @@
 ** All rights reserved.
 */
 #include <stdio.h>
-#include "cc.h"
+#include "CC.H"
+#include "STDIO.H"
+
+static void setseq (void);
+static void dumpstage (void);
+static int peep (int * seq);
+static int isfree (int reg, int *pp);
+static int * getpop (int *next);
+static void newline (void);
+static void outcode (int pcode, int value);
+static void outline (char ptr[]);
+static void outsymno (char *ptr); 
+static void outname (char *ptr);
+static void outstr (char ptr[]);
+static void outall (char ptr[]);
+static void outdec (int number);
+static void tosymbol (char * buffer, int value);
 
 /* #define DISOPT */       /* display optimizations values */
-
-/*************************** externals ****************************/
-
-extern char
-  *cptr, *macn, *litq, *symtab, optimize, ssname[NAMESIZE];
-
-extern int
-  *stage, litlab, litptr, csp, output, oldseg, usexpr,
-  *snext, *stail, *slast;
-
 
 /***************** optimizer command definitions ******************/
 
@@ -56,7 +62,7 @@ extern int
 
 /******************** optimizer command lists *********************/
 
-int
+static int
   seq00[] = {0,ADD12,MOVE21,0,                       /* ADD21 */
              go|p1,ADD21,0},
 
@@ -202,8 +208,8 @@ int
              ifl|m2,0,ifl|0,rINC1,neg,0,ifl|p3,rDEC1,0,0};
 
 #define HIGH_SEQ  47
-int seq[HIGH_SEQ + 1];  
-setseq() {
+int *seq[HIGH_SEQ + 1];  // XXX added *
+static void setseq (void) {
   seq[ 0] = seq00;  seq[ 1] = seq01;  seq[ 2] = seq02;  seq[ 3] = seq03;
   seq[ 4] = seq04;  seq[ 5] = seq05;  seq[ 6] = seq06;  seq[ 7] = seq07;
   seq[ 8] = seq08;  seq[ 9] = seq09;  seq[10] = seq10;  seq[11] = seq11;
@@ -220,14 +226,14 @@ setseq() {
 
 /***************** assembly-code strings ******************/
 
-int code[PCODES];
+static char * code[PCODES];	// XXX changed from int to char *
 
 /*
 ** First byte contains flag bits indicating:
 **    the value in ax is needed (010) or zapped (020)
 **    the value in bx is needed (001) or zapped (002)
 */
-setcodes() {
+void setcodes (void) {
   setseq();
   code[ADD12]   = "\211\tA\tL\tXXBX\n";
 /*code[ADD12]   = "\211ADD AX,BX\n";*/
@@ -273,9 +279,9 @@ setcodes() {
   code[GETw1m]  = "\020MOV AX,<m>\n";
   code[GETw1m_] = "\020MOV AX,<m>";
   code[GETw1n]  = "\020?\tldx\tL1\t<n>\n\tld\tL\t1?\tsla\t\t16?\n";
-/*code[GETw1n]  = "\020?MOV AX,<n>?XOR AX,AX?\n";					 */
+/*code[GETw1n]  = "\020?MOV AX,<n>?XOR AX,AX?\n"; */
   code[GETw1p]  = "\021\t?ldx\tL1\t<n>\n\tld\tL\t1?ld\tI\tXXBX?\n";            /* see gen() */
-/*code[GETw1p]  = "\021MOV AX,?<n>??[BX]\n";            /* see gen() */
+/*code[GETw1p]  = "\021MOV AX,?<n>??[BX]\n";            / * see gen() */
   code[GETw1s]  = "\020MOV AX,<n>[BP]\n";
   code[GETw2m]  = "\002MOV BX,<m>\n";
   code[GETw2n]  = "\002?\tldx\t 1\t1\n\tstx\tl1\tXXBX?XOR BX,BX?\n";
@@ -364,33 +370,33 @@ setcodes() {
 ** print all assembler info before any code is generated
 ** and ensure that the segments appear in the correct order.
 */
-header()  
+void header (void)  
 {
-	int		startc;
-	char	buf[81],
-			*buffer;
+  FILE *    startc;	// XXX chagned from int to FILE * 
+  char  buf[81],
+      *buffer;
 
-	startc = fopen("startc.asm", "r");
-	if (startc == EOF)
-	{
-		error("unable to open start.c");
-	}
-	buffer = buf;
-	while(buffer != NULL)
-	{
-		buffer = fgets(buf, 80, startc);
-		if (buffer != NULL)
-		{
-			outall(buffer);
-		}
-	}
-	fclose(startc);
+  startc = fopen("startc.asm", "r");
+  if (startc == NULL)	// XXX changed from EOF to NULL
+  {
+    error("unable to open start.c");
+  }
+  buffer = buf;
+  while(buffer != NULL)
+  {
+    buffer = fgets(buf, 80, startc);
+    if (buffer != NULL)
+    {
+      outall(buffer);
+    }
+  }
+  fclose(startc);
 }
 
 /*
 ** print any assembler stuff needed at the end
 */
-trailer()  {  
+void trailer (void)  {  
   char *cp;
   cptr = STARTGLB;
   while(cptr < ENDGLB) {
@@ -400,7 +406,7 @@ trailer()  {
     }
   if((cp = findglb("main")) && cp[CLASS]==STATIC)
     external("_main", 0, FUNCTION);
-  toseg(NULL);
+  toseg(NULLSEG);
   outall("\tend\t\tXXent\t\tstart at XXent\n");
 #ifdef DISOPT
     {
@@ -474,7 +480,7 @@ void clearstage (int * before, int * start) {
 /*
 ** dump the staging buffer
 */
-dumpstage() {
+static void dumpstage (void) {
   int i;
   stail = snext;
   snext = stage;
@@ -508,29 +514,29 @@ void toseg (int newseg) {
 void public (int ident) {
 char symnum[6];
 char *cp;
-	newline();
-	outall("****************** ");
-	outall(ssname);
-	newline();
-	if (streq(ssname, "main"))		/* q. main()? */
-	{								/* a. yes ... put out name */
-		outall(ssname);				/* .. should be main */
-	}
-	else							/* otherwize .. */
-	{								/* q. routine found? */
-		if ((cp = findglb(ssname)) && cp[CLASS]==STATIC)
-		{							/* a. yes ... put out symbol. */
-			tosymbol(symnum, getint(cp + SYMNO, 2));
-			outall(symnum);
-		}
-		else
-		{
-			/* declare error */
-			return;
-		}
-	}
-	outall("\tequ\t\t*");
-	newline();
+  newline();
+  outall("****************** ");
+  outall(ssname);
+  newline();
+  if (streq(ssname, "main"))    /* q. main()? */
+  {                /* a. yes ... put out name */
+    outall(ssname);        /* .. should be main */
+  }
+  else              /* otherwize .. */
+  {                /* q. routine found? */
+    if ((cp = findglb(ssname)) && cp[CLASS]==STATIC)
+    {              /* a. yes ... put out symbol. */
+      tosymbol(symnum, getint(cp + SYMNO, 2));
+      outall(symnum);
+    }
+    else
+    {
+      /* declare error */
+      return;
+    }
+  }
+  outall("\tequ\t\t*");
+  newline();
 }
 
 /*
@@ -539,13 +545,14 @@ char *cp;
 void external (char *name, int size, int ident) {
 }
 
+#if 0 // XXX unused
 /*
 ** output the size of the object pointed to.
 */
-outsize(size, ident) 
-	int size, ident; 
+void outsize(int size, int ident) 
 {
 }
+#endif
 
 /*
 ** point to following object(s)
@@ -583,7 +590,7 @@ void dumpzero (int size, int count) {
 /*
 ** Try to optimize sequence at snext in the staging buffer.
 */
-peep(seq) int *seq; {
+static int peep (int * seq) {
   int *next, *count, *pop, n, skip, tmp, reply;
   char c;
   next = snext;
@@ -594,7 +601,7 @@ peep(seq) int *seq; {
       case pfree: if(isfree(PRI, next))  break;      return (NO);
       case sfree: if(isfree(SEC, next))  break;      return (NO);
       case comm:  if(*next & COMMUTES)   break;      return (NO);
-      case _pop:  if(pop = getpop(next)) break;      return (NO);
+      case _pop:  if((pop = getpop(next))) break;      return (NO);
       default:    if(next >= stail || *next != *seq) return (NO);
       }
     next += 2; ++seq;
@@ -640,7 +647,7 @@ peep(seq) int *seq; {
 ** unused by it still may not be free if the
 ** context uses the value of the expression.
 */
-isfree(reg, pp) int reg, *pp; {
+static int isfree (int reg, int *pp) {
   char *cp;
   while(pp < stail) {
     cp = code[*pp];
@@ -657,7 +664,7 @@ isfree(reg, pp) int reg, *pp; {
 ** NOTE: Function arguments are not popped, they are
 ** wasted with an ADDSP.
 */
-getpop(next) int *next; {
+static int * getpop (int *next) {
   char *cp;
   int level;  level = 0;
   while(YES) {
@@ -684,28 +691,29 @@ colon() {
   fputc(':', output);
   }
 */
-newline() {
+static void newline (void) {
   fputc(NEWLINE, output);
   }
 
 /*
 ** output assembly code.
 */
-outcode(pcode, value) int pcode, value; {
+static void outcode (int pcode, int value) {
   int part, skip, count;
   char *cp, *back;
-  part = back = 0;
+  part = 0;
+  back = NULL;
   skip = NO;
   cp = code[pcode] + 1;          /* skip 1st byte of code string */
   while(*cp) {
     if(*cp == '<') {
       ++cp;                      /* skip to action code */
       if(skip == NO) switch(*cp)
-	  {
-        case 'm': outsymno(value);	break; /* mem ref by label */
-        case 'n': outdec(value);	break; /* numeric constant */
-        case 'l': outdec(litlab);	break; /* current literal label */
-		case 's': outname(value);	break; /* symbolic name */
+    {
+        case 'm': outsymno((char *)value);  break; /* mem ref by label */ // XXX Added cast
+        case 'n': outdec(value);  break; /* numeric constant */
+        case 'l': outdec(litlab);  break; /* current literal label */
+    case 's': outname((char *)value);  break; /* symbolic name */ // XXX Added cast
       }
       cp += 2;                   /* skip past > */
       }
@@ -735,9 +743,11 @@ outcode(pcode, value) int pcode, value; {
     }
   }
 
-outdec(number)  int number; {
+static void outdec (int number) {
   int k, zs;
-  char c, *q, *r;
+  //char c, *q, *r; // XXX fixed...
+  char c;
+  int q, r;
   zs = 0;
   k = 10000;
   if(number < 0) {
@@ -746,7 +756,7 @@ outdec(number)  int number; {
     }
   while (k >= 1) {
     q = 0;
-    r = number;
+    r = number;	
     while(r >= k) {++q; r = r - k;}
     c = q + '0';
     if(c != '0' || k == 1 || zs) {
@@ -758,60 +768,53 @@ outdec(number)  int number; {
     }
   }
 
-outline(ptr)  char ptr[];  {
+static void outline (char ptr[]) {
   outstr("\t");
   outstr(ptr);
   newline();
   }
 
-outsymno(ptr) char *ptr; 
-{
+static void outsymno (char *ptr) {
 char symbol[6];
 int value;
 
-	value = getint(ptr + SYMNO, 2);
-	tosymbol(symbol, value);
-	outall(symbol);
+  value = getint(ptr + SYMNO, 2);
+  tosymbol(symbol, value);
+  outall(symbol);
 }
 
-outname(ptr) char *ptr;
-{
-	outall(ptr + NAME);
+static void outname (char *ptr) {
+  outall(ptr + NAME);
 }
 
-outstr(ptr) char ptr[]; {
+static void outstr (char ptr[]) {
   poll(1);           /* allow program interruption */
   while(*ptr >= ' ') fputc(*ptr++, output);
   }
 
-outall(ptr) 
-char ptr[];
-{
-	poll(1);
-	while (*ptr)
-	{
-		fputc(*ptr++, output);
-	}
+static void outall (char ptr[]) {
+  poll(1);
+  while (*ptr)
+  {
+    fputc(*ptr++, output);
+  }
 }
 
-tosymbol(buffer, value)
-char *buffer;
-int value;
-{
+static void tosymbol (char * buffer, int value) {
 char *p;
 int zeroes;
 int count;
-	p = buffer + 5;
-	*p-- = 0;
-	while (value > 0 && p > buffer)
-	{
-		*p-- = (value % 10) + '0';
-		value /= 10;
-	}
-	while (p > buffer)
-	{
-		*p-- = '0';
-	}
-	*p = '#';
+  p = buffer + 5;
+  *p-- = 0;
+  while (value > 0 && p > buffer)
+  {
+    *p-- = (value % 10) + '0';
+    value /= 10;
+  }
+  while (p > buffer)
+  {
+    *p-- = '0';
+  }
+  *p = '#';
 }
 

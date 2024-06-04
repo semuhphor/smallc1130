@@ -75,6 +75,7 @@
 /*
 ** segment types
 */
+#define NULLSEG 0	// XXX added to replace usage of NULL
 #define DATASEG 1
 #define CODESEG 2
 
@@ -300,6 +301,8 @@ extern int iflevel;  /* #if... nest level */
 extern FILE * input; /* fd for input file */
 extern FILE * input2; /* fd for "#include" file */
 extern FILE * listfp;   /* file pointer to list device */
+extern int oldseg;   /* current segment (0, DATASEG, CODESEG) */
+
 extern int macptr;   /* macro buffer index */
 extern int nch;      /* next character of input line */
 extern int nxtlab;   /* next avail label # */
@@ -307,6 +310,8 @@ extern int op[16];   /* p-codes of signed binary operators */
 extern int op2[16];  /* p-codes of unsigned binary operators */
 extern int opindex;  /* index to matched operator */
 extern int opsize;   /* size of operator in characters */
+extern int *stage;    /* staging buffer address */
+
 extern FILE * output;   /* fd for output file */
 extern int pptr;     /* ptr to parsing buffer */
 extern int skiplevel;/* level at which #if... skipping started */
@@ -317,6 +322,11 @@ extern char ssname[NAMESIZE];   /* static symbol name */
 extern int litlab;   /* label # assigned to literal pool */
 extern int litptr;   /* ptr to next entry */
 extern int *snext;    /* next addr in stage */
+extern int*stail;    /* last addr of data in stage */
+extern int*slast;    /* last addr in stage */
+
+extern int usexpr; /* true if value of expression is used */
+
 
 void parse (void);
 int dodeclare (int class);
@@ -391,5 +401,4 @@ void clearstage (int * before, int * start);
 int iscons (FILE * fd);
 void poll (int pause);
 int avail (int abort);
-
 

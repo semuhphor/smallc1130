@@ -15,38 +15,38 @@
 /*
 ** miscellaneous storage
 */
-int nogo;     /* disable goto statements? */
-int noloc;    /* disable block locals? */
+static int nogo;     /* disable goto statements? */
+static int noloc;    /* disable block locals? */
 int opindex;  /* index to matched operator */
 int opsize;   /* size of operator in characters */
-int swactive; /* inside a switch? */
-int swdefault;/* default label #; else 0 */
-int*swnext;   /* address of next entry */
-int*swend;    /* address of last entry */
+static int swactive; /* inside a switch? */
+static int swdefault;/* default label #; else 0 */
+static int*swnext;   /* address of next entry */
+static int*swend;    /* address of last entry */
 int*stage;    /* staging buffer address */
 char *wq;       /* while queue */
-int argcs;    /* static argc */
-char **argvs;    /* static argv */
+static int argcs;    /* static argc */
+static char **argvs;    /* static argv */
 char *wqptr;    /* ptr to next entry */
 int litptr;   /* ptr to next entry */
 int macptr;   /* macro buffer index */
 int pptr;     /* ptr to parsing buffer */
 int ch;       /* current character of input line */
 int nch;      /* next character of input line */
-int declared; /* # of local bytes to declare; -1 when declared */
+static int declared; /* # of local bytes to declare; -1 when declared */
 int iflevel;  /* #if... nest level */
 int skiplevel;/* level at which #if... skipping started */
 int nxtlab;   /* next avail label # */
 int litlab;   /* label # assigned to literal pool */
 int csp;      /* compiler relative stk ptr */
-int argstk;   /* function arg sp */
-int argtop;   /* highest formal argument offset */
-int ncmp;     /* # open compound statements */
+static int argstk;   /* function arg sp */
+static int argtop;   /* highest formal argument offset */
+static int ncmp;     /* # open compound statements */
 int errflag;  /* true after 1st error in statement */
 int eof;      /* true on final input eof */
 FILE * output;   /* fd for output file */
-int files;    /* true if file list specified on cmd line */
-int filearg;  /* cur file arg index */
+static int files;    /* true if file list specified on cmd line */
+static int filearg;  /* cur file arg index */
 FILE * input   = SC_EOF; /* fd for input file */
 FILE * input2  = SC_EOF; /* fd for "#include" file */
 int usexpr  = YES; /* true if value of expression is used */
@@ -55,13 +55,13 @@ int*snext;    /* next addr in stage */
 int*stail;    /* last addr of data in stage */
 int*slast;    /* last addr in stage */
 FILE * listfp;   /* file pointer to list device */
-int lastst;   /* last parsed statement type */
+static int lastst;   /* last parsed statement type */
 int oldseg;   /* current segment (0, DATASEG, CODESEG) */
 int symno = 1;/* symbol number */
 
 char optimize; /* optimize output of staging buffer? */
 char alarm;    /* audible alarm on errors? */
-char monitor;  /* monitor function headers? */
+static char monitor;  /* monitor function headers? */
 char pause;    /* pause for operator on errors? */
 char *symtab;   /* symbol table */
 char *litq;     /* literal pool */
