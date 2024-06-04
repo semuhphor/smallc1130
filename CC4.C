@@ -376,7 +376,7 @@ void header (void)
   char  buf[81],
       *buffer;
 
-  startc = fopen("startc.asm", "r");
+  startc = fopen("StartC.asm", "r");
   if (startc == NULL)	// XXX changed from EOF to NULL
   {
     error("unable to open start.c");
