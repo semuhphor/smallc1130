@@ -18,12 +18,18 @@
 #define TYPE     1
 #define CLASS    2
 #define SIZE     3
+// XXX Some symbols' values are host addresses; increase the OFFSET field size to  4 bytes
 #define OFFSET   5
-#define SYMNO	 7
-#define NAME     9
+#define OFFSET_SZ   4
+//#define SYMNO	 7
+#define SYMNO	 9
+//#define NAME     9
+#define NAME     11
 
-#define SYMAVG  14
-#define SYMMAX  18
+//#define SYMAVG  14
+#define SYMAVG  16
+//#define SYMMAX  18
+#define SYMMAX  20
 
 /*
 ** symbol table parameters

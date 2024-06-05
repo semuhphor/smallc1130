@@ -393,7 +393,7 @@ static int primary (int *is) {
         experr ();
         return 0;
       }
-      gen (POINT1s, getint (ptr+OFFSET, 2));
+      gen (POINT1s, getint (ptr+OFFSET, OFFSET_SZ));
       is[ST] = (int) ptr;	// XXX added cast
       is[TI] = ptr[TYPE];
       if (ptr[IDENT] == ARRAY) {

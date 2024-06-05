@@ -574,7 +574,7 @@ static void doargs (int type) {
         ptr[IDENT] = id;
         ptr[TYPE]  = type;
         putint (sz, ptr + SIZE, 2);
-        putint (argtop - getint (ptr + OFFSET, 2), ptr + OFFSET, 2);
+        putint (argtop - getint (ptr + OFFSET, OFFSET_SZ), ptr + OFFSET, OFFSET_SZ);
       }
       else
         error ("not an argument");
@@ -1025,7 +1025,7 @@ static int addlabel (int def) {
   else
     cptr = addsym (ssname, LABEL, def, 0, getlabel (), & locptr, LABEL);
 
-  return getint (cptr+OFFSET, 2);
+  return getint (cptr+OFFSET, OFFSET_SZ);
 }
 
 static void doreturn (void) {

@@ -1,6 +1,8 @@
 CC = clang
 #CCFLAGS = -std=c89 -x c
-CCFLAGS = -x c -m32 -O0 -g
+CCFLAGS = -x c -m32
+CCFLAGS += -O0 -g
+CCFLAGS += -D DEBUG=1
 LDFLAGS = -m32
 
 all : cc1130 test
@@ -33,7 +35,7 @@ clean :
 	-rm CC1.o CC2.o CC3.o CC4.o GETARG.o POLL.o
 
 tags :
-	ctags CC1.C CC2.C CC3.C CC4.C GETARG.C POLL.C
+	ctags CC1.C CC2.C CC3.C CC4.C GETARG.C POLL.C CC.H STDIO.H
 
 #cc  cc1 -m -a -p
 #if errorlevel 1 goto exit
