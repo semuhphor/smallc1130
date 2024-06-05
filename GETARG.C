@@ -1,4 +1,5 @@
-#include "stdio.h"
+#include <stdio.h>
+#include "STDIO.H"
 /*
 ** Get command line argument. 
 ** Entry: n    = Number of the argument.
@@ -9,21 +10,21 @@
 ** Returns number of characters moved on success,
 ** else EOF.
 */
-getarg(n, s, size, argc, argv)
-  int n; char *s; int size, argc, argv[]; {
+
+int getarg (int n, char *s, int size, int argc, char * argv[]) {
   char *str;
   int i;
   if(n < 0 | n >= argc) {
-    *s = NULL;
+    *s = NUL;
     return EOF;
     }
   i = 0;
   str=argv[n];
   while(i<size) {
-    if((s[i]=str[i])==NULL) break;
+    if((s[i]=str[i])==NUL) break;
     ++i;
     }
-  s[i]=NULL;
+  s[i]=NUL;
   return i;
   }
 

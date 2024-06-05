@@ -2,6 +2,7 @@
 ** CC.H -- Symbol Definitions for Small-C compiler.
 */
 
+
 /*
 ** machine dependent parameters
 */
@@ -74,6 +75,7 @@
 /*
 ** segment types
 */
+#define NULLSEG 0	// XXX added to replace usage of NULL
 #define DATASEG 1
 #define CODESEG 2
 
@@ -271,4 +273,132 @@
 #define SUBwpn  106   /* sub n from mem word thru sr ptr */
 
 #define PCODES  107   /* size of code[] */
+
+extern char *symtab;   /* symbol table */
+extern char *macn;     /* macro name buffer */
+extern char *macq;     /* macro string buffer */
+extern char *pline;    /* parsing buffer */
+extern char *mline;    /* macro buffer */
+extern char optimize; /* optimize output of staging buffer? */
+extern char alrm;    /* audible alarm on errors? */
+extern char *glbptr;   /* global symbol table */
+extern char *line;     /* ptr to pline or mline */
+extern char *lptr;     /* ptr to current character in "line" */
+extern char *cptr;     /* work ptrs to any char buffer */
+extern char *cptr2;
+extern char *cptr3;
+extern char *locptr;   /* next local symbol table entry */
+extern char msname[NAMESIZE];   /* macro symbol name */
+extern char paus;    /* pause for operator on errors? */
+extern char quote[2]; /* literal string for '"' */
+extern char *wq;       /* while queue */
+extern int ccode; /* true while parsing C code */
+extern int ch;       /* current character of input line */
+extern int csp;      /* compiler relative stk ptr */
+extern int eof;      /* true on final input eof */
+extern int errflag;  /* true after 1st error in statement */
+extern int iflevel;  /* #if... nest level */
+extern FILE * input; /* fd for input file */
+extern FILE * input2; /* fd for "#include" file */
+extern FILE * listfp;   /* file pointer to list device */
+extern int oldseg;   /* current segment (0, DATASEG, CODESEG) */
+
+extern int macptr;   /* macro buffer index */
+extern int nch;      /* next character of input line */
+extern int nxtlab;   /* next avail label # */
+extern int op[16];   /* p-codes of signed binary operators */
+extern int op2[16];  /* p-codes of unsigned binary operators */
+extern int opindex;  /* index to matched operator */
+extern int opsize;   /* size of operator in characters */
+extern int *stage;    /* staging buffer address */
+
+extern FILE * output;   /* fd for output file */
+extern int pptr;     /* ptr to parsing buffer */
+extern int skiplevel;/* level at which #if... skipping started */
+extern char *wqptr;    /* ptr to next entry */
+extern int symno;/* symbol number */
+extern char *litq;
+extern char ssname[NAMESIZE];   /* static symbol name */
+extern int litlab;   /* label # assigned to literal pool */
+extern int litptr;   /* ptr to next entry */
+extern int *snext;    /* next addr in stage */
+extern int*stail;    /* last addr of data in stage */
+extern int*slast;    /* last addr in stage */
+
+extern int usexpr; /* true if value of expression is used */
+
+
+void parse (void);
+int dodeclare (int class);
+void declglb (int type, int class);
+void initials (int size, int ident, int dim);
+void init (int size, int ident, int * dim);
+void doinclude (void);
+void dodefine (void);
+char putmac (char c);
+void dofunction (void);
+char * findglb (char * sname);
+char * findloc (char * sname);
+char * nextsym (char * entry);
+char * addsym(char * sname, int id, int type, int size, int value, char **lgpp, int class);
+void ask (void);
+void openfile (void);
+void mustfile (void);
+FILE * mustopen (char * fn, char * mode);
+int getarg(int n, char * s, int size, int argc, char * argv[]);
+void preprocess (void);
+void inln (void);
+int symname (char * sname);
+int inbyte (void);
+void need (char * str);
+void ns (void);
+int match (char * lit);
+int streq (char str1[], char str2[]);
+int astreq (char str1[], char str2[], int len);
+int amatch (char * lit, int len);
+int nextop (char * list);
+void blanks (void);
+int white (void);
+char gch (void);
+void bump (int n);
+void kill (void);
+int endst (void);
+void skip (void);
+int search (char * sname, char * buf, int len, char * end, int max, int off);
+int hash (char *sname);
+char * readwhile (char *ptr);
+int alpha (char c);
+int an (char c);
+int getlabel (void);
+int getint (char *addr, int len);
+void putint (int i, char * addr, int len);
+void lout (char * line, FILE * fd);
+void illname (void);
+void multidef (char *sname);
+void needlval (void);
+void error (char msg[]);
+void noiferr (void);
+void errout (char * msg, FILE * fp);
+void addwhile (int ptr[]);
+int constexpr (int *val);
+void expression (int *con, int *val);
+void test (int label, int parens);
+int string (int *offset);
+void header (void);
+void setcodes (void);
+void trailer (void);
+void external (char *name, int size, int ident);
+void public (int ident);
+void stowlit (int value, int size);
+void dumplits (int size);
+void dumpzero (int size, int count);
+void point (void);
+void gen (int pcode, int value);
+void toseg (int newseg);
+void delwhile (void);
+void setstage (int ** before, int ** start);
+void clearstage (int * before, int * start);
+int iscons (FILE * fd);
+void poll (int pause);
+int avail (int abort);
 
