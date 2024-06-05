@@ -44,7 +44,7 @@ static int argstk;   /* function arg sp */
 static int argtop;   /* highest formal argument offset */
 static int ncmp;     /* # open compound statements */
 int errflag;  /* true after 1st error in statement */
-int eof;      /* true on final input eof */
+int input_eof;      /* true on final input eof */
 FILE * output;   /* fd for output file */
 static int files;    /* true if file list specified on cmd line */
 static int filearg;  /* cur file arg index */
@@ -169,7 +169,7 @@ int main (int argc, char * argv[]) {
 **      definitions are legal...
 */
 void parse (void) {
-  while (eof == 0) {
+  while (input_eof == 0) {
     if (amatch ("extern", 6))   
       dodeclare (EXTERNAL);
        
@@ -574,7 +574,7 @@ static void doargs (int type) {
         ptr[IDENT] = id;
         ptr[TYPE]  = type;
         putint (sz, ptr + SIZE, 2);
-        putint (argtop - getint (ptr + OFFSET, 2), ptr + OFFSET, 2);
+        putint (argtop - getint (ptr + OFFSET, OFFSET_SZ), ptr + OFFSET, OFFSET_SZ);
       }
       else
         error ("not an argument");
@@ -645,7 +645,7 @@ static int decl (int type, int aid, int *id, int *sz) {
 ** statement parser
 */
 static int statement (void) {
-  if (ch == 0 && eof)
+  if (ch == 0 && input_eof)
     return 0;  // CAC Added '0'
 
   else if (amatch ("char",     4)) {
@@ -799,7 +799,7 @@ static void compound (void) {
   ++ ncmp;                 /* new level open */
  
   while (match ("}") == 0) {
-    if (eof) {
+    if (input_eof) {
       error ("no final }");
       break;
     }
@@ -1025,7 +1025,7 @@ static int addlabel (int def) {
   else
     cptr = addsym (ssname, LABEL, def, 0, getlabel (), & locptr, LABEL);
 
-  return getint (cptr+OFFSET, 2);
+  return getint (cptr+OFFSET, OFFSET_SZ);
 }
 
 static void doreturn (void) {
@@ -1074,7 +1074,7 @@ static void doasm (void) {
     if (match ("#endasm"))
       break;
 
-    if (eof)
+    if (input_eof)
       break;
    
     fputs (line, output);
@@ -1205,7 +1205,7 @@ void openfile (void) {                /* entire function revised */
   }
  
   if (files++)
-    eof = YES;
+    input_eof = YES;
 
   else
     input = stdin;

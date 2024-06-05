@@ -18,12 +18,18 @@
 #define TYPE     1
 #define CLASS    2
 #define SIZE     3
+// XXX Some symbols' values are host addresses; increase the OFFSET field size to  4 bytes
 #define OFFSET   5
-#define SYMNO	 7
-#define NAME     9
+#define OFFSET_SZ   4
+//#define SYMNO	 7
+#define SYMNO	 9
+//#define NAME     9
+#define NAME     11
 
-#define SYMAVG  14
-#define SYMMAX  18
+//#define SYMAVG  14
+#define SYMAVG  16
+//#define SYMMAX  18
+#define SYMMAX  20
 
 /*
 ** symbol table parameters
@@ -295,7 +301,7 @@ extern char *wq;       /* while queue */
 extern int ccode; /* true while parsing C code */
 extern int ch;       /* current character of input line */
 extern int csp;      /* compiler relative stk ptr */
-extern int eof;      /* true on final input eof */
+extern int input_eof;      /* true on final input eof */
 extern int errflag;  /* true after 1st error in statement */
 extern int iflevel;  /* #if... nest level */
 extern FILE * input; /* fd for input file */

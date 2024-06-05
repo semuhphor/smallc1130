@@ -435,6 +435,9 @@ void setstage (int ** before, int ** start) {
 */
 void gen (int pcode, int value) {
   int newcsp;
+#ifdef DEBUG
+outstr ("gen pcode "); outdec (pcode);  outstr (" value "); outdec (value); newline ();
+#endif
   switch(pcode) {
     case GETb1pu:
     case GETb1p:
