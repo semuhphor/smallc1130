@@ -301,7 +301,7 @@ extern char *wq;       /* while queue */
 extern int ccode; /* true while parsing C code */
 extern int ch;       /* current character of input line */
 extern int csp;      /* compiler relative stk ptr */
-extern int eof;      /* true on final input eof */
+extern int input_eof;      /* true on final input eof */
 extern int errflag;  /* true after 1st error in statement */
 extern int iflevel;  /* #if... nest level */
 extern FILE * input; /* fd for input file */

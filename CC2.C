@@ -22,7 +22,7 @@ void preprocess (void) {
   if (ccode) {
     line = mline;
     ifline ();
-    if (eof) 
+    if (input_eof) 
       return;
   } else {
     inln ();
@@ -65,7 +65,7 @@ void preprocess (void) {
           bump (1);
         else {
           ifline ();
-          if (eof) 
+          if (input_eof) 
              break;
         }
       }
@@ -78,7 +78,7 @@ void preprocess (void) {
         }
       }
       ifline ();
-      if (eof) {
+      if (input_eof) {
         break;
       }
     } else if (an (ch)) {
@@ -117,7 +117,7 @@ static void keepch (char c) {
 static void ifline (void) {
   while (1) {
     inln ();
-    if (eof)
+    if (input_eof)
       return;
     if (match ("#ifdef")) {
       ++ iflevel;
@@ -172,7 +172,7 @@ void inln (void) {           /* numerous revisions */
   poll (1);           /* allow operator interruption */
   if (input == SC_EOF)
     openfile ();
-  if (eof) 
+  if (input_eof) 
    return;
   if ((unit = input2) == SC_EOF) 
    unit = input;
@@ -193,7 +193,7 @@ void inln (void) {           /* numerous revisions */
 
 int inbyte (void) {
   while (ch == 0) {
-    if (eof)
+    if (input_eof)
       return 0;
     preprocess ();
   }
@@ -315,7 +315,7 @@ void blanks (void) {
     if (line == mline)
       return;
     preprocess ();
-    if (eof)
+    if (input_eof)
       break;
   }
 }
