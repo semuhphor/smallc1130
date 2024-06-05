@@ -1,12 +1,12 @@
 CC = clang
 #CCFLAGS = -std=c89 -x c
-CCFLAGS = -x c -m32
+CCFLAGS = -x c -m32 -O0 -g
 LDFLAGS = -m32
 
 all : cc1130 test
 
-cc1130 : CC1.o CC2.o CC3.o CC4.o GETARG.o
-	clang $(LDFLAGS) CC1.o CC2.o CC3.o CC4.o GETARG.o -o cc1130
+cc1130 : CC1.o CC2.o CC3.o CC4.o GETARG.o POLL.o
+	clang $(LDFLAGS) CC1.o CC2.o CC3.o CC4.o GETARG.o POLL.o -o cc1130
 
 CC1.o : CC1.C CC.H STDIO.H
 	$(CC) $(CCFLAGS) -c CC1.C
@@ -23,8 +23,17 @@ CC4.o : CC4.C CC.H STDIO.H
 GETARG.o : GETARG.C STDIO.H
 	$(CC) $(CCFLAGS) -c GETARG.C
 
+POLL.o : POLL.C 
+	$(CC) $(CCFLAGS) -c POLL.C
+
 test : cc1130
 	./cc1130 test1.c -m -a -p -no
+
+clean :
+	-rm CC1.o CC2.o CC3.o CC4.o GETARG.o POLL.o
+
+tags :
+	ctags CC1.C CC2.C CC3.C CC4.C GETARG.C POLL.C
 
 #cc  cc1 -m -a -p
 #if errorlevel 1 goto exit

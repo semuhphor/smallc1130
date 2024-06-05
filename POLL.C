@@ -1,9 +1,10 @@
-#include "stdio.h"
-#include "clib.h"
+//#include "stdio.h"
+//#include "clib.h"
 /*
 ** Poll for console input or interruption
 */
-poll(pause) int pause; {
+int poll(int pause) {
+#if 0
   int i;
   if(i = _hitkey())  i = _getkey();
   if(pause) {
@@ -15,5 +16,8 @@ poll(pause) int pause; {
     if(i == ABORT) exit(2);
     }
   return (i);
+#else
+  return 0;
+#endif
   }
 
