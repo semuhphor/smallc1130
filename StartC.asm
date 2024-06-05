@@ -25,12 +25,13 @@ XXha	dc		*-*		highest memory address for stack
 XX3	dc		3		three
 XX1	dc		1		one
 XXBX	DC		*-*		"BX" Register
-XXXR3	DC		*-*		XR3 upon entry
+XXXR3	dc		*-*		XR3 at entry
+
 *********************************************************
 * entry point from system
 *
 * This is where it all begins. Upon entry, the program:
-*	1. Determines the highest memory address for stack
+*	1. Determines the highest memory address
 *	2. Stores it (Used to ensure no stack underflow)
 *	3. Inits SP (XR2)
 *	4. Set up initial stack frame (none, or zero).
@@ -47,7 +48,7 @@ XXXR3	DC		*-*		XR3 upon entry
 * RVF 27DEC2007 Init stack frame pointer to zero
 *********************************************************
 XXent	equ		*		main enty point
-	stx	 3	XXXR3		Save XR3
+	stx	 3	XXXR3		save entry XR3
 	bsi		XXgha		get highest address in XR2
 	stx	 2	XXha		save base stack address
 	ldx	 3	0		old stack frame = none
@@ -58,6 +59,68 @@ XXent	equ		*		main enty point
 XXend	wait				wait
 	exit				.. return to dm2
 	
+*********************************************************
+* Get highest memory address
+*
+* determines the stack base (high memory)
+*	1. Saves a value in (4K, 8K, 16K, 32K) -1 
+*	2. Return high address (stack pointer) in XR2
+*********************************************************
+* Modifications
+*
+* WHO DDMMMYYYY Description
+* --- --------- -----------
+* RVF 28Apr2002 Initial implementation
+*********************************************************
+	
+XXgha	dc		*-*		get highest address
+	ld	L	/7fff		get high memory value
+	sto		XXsvh		save high memory value
+	
+	ldx	L1	XX3		xr1 = 3 (loop counter)
+	ld		XX4k		acc = 4k
+	
+XXgh1	equ		*		loop limit
+	s		XX1		acc = nK - 1
+	sto	L	2		XR2 -> potential high addr (pha)
+	rte		16		.. save pha in ext
+		
+	ld	 2	0		acc = *pha
+	sto		XXsv		XXsv = acc
+
+	sla		16		acc = 0
+	sto	 2	0		*pha = 0
+	
+	stx	L2	/7fff		save pha in highest addr
+	
+	ld	 2	0		acc = *pha
+	
+	s	L	2		q. pha = *pha?
+	bz		XXgh5		a. yes .. we have hi mem addr (hma)
+	
+	ld		XXsv		load the saved value
+	sto	 2	0		.. save in pha
+	
+	rte		16		acc = pha
+	a		XX1		acc = memory size
+	sla		1		.. multiply by 2
+	
+	mdx	 1	-1		q. loop finished?
+	mdx		XXgh1		a. no .. continue looping
+	
+XXgh5	equ		*		come here with XR2 = hma
+	mdx	 2	-128		back off 256 words 	
+	mdx	 2	-128		...	
+	ld		XXsvh		reload hma value
+	sto	 2	0		.. save in hma
+	bsc	I	XXgha		.. and return to caller
+
+XX4k	dc		/1000		4K memory
+XXsv	dc		*-*		save for old value
+XXsvh	dc		*-*		save for high memory
+XXlpc	dc		*-*		loop counter
+XXbad	dc		/bad0		bad stack
+
 *********************************************************
 * push accumulator
 *	1. push accumulator on stack (XR2->current stack)
@@ -295,26 +358,6 @@ XXgt	dc		*-*
 	bn		XXTRU		.. if GT, true
 	b		XXFLS		.. else .. false
 
-*********************************************************
-* Get highest memory address for stack
-*
-* determines the stack base (high memory)
-*	1. Return xxstk - 1 in XR2
-*********************************************************
-* Modifications
-*
-* WHO DDMMMYYYY Description
-* --- --------- -----------
-* RVF 28Apr2002 Initial implementation
-* RVF 01Jul2009 Stack defined in code, no longer dynamic
-*********************************************************
-	
-XXgha	dc		*-*		get highest address
-	ldx	L2	xxstk-1		..
-	bsc	I	XXgha		.. and return to caller
-
-xxbad	dc		/bad0		stack error
-xxstk	bes		2000		2k stack
 *********************************************************
 * START OF GENERATED CODE 
 *********************************************************
