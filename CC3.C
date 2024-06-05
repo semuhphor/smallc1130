@@ -67,6 +67,7 @@ int constexpr (int *val) {
 
 void expression (int *con, int *val) {
   int is[7];
+  for (int i = 0; i < 7; i++) is[i] = 0; // XXX
   if (level1 (is))
     fetch (is);
   *con = is[TC];
