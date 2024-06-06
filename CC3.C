@@ -76,6 +76,7 @@ void expression (int *con, int *val) {
 
 void test (int label, int parens) {
   int is[7];
+  for (int i = 0; i < 7; i++) is[i] = 0; // XXX
   int *before, *start;
   if (parens)
     need ("(");
@@ -128,6 +129,8 @@ static void zerojump (int oper, int label, int is[]) {
 
 static int level1 (int is[]) {
   int k, is2[7], is3[2], oper, oper2;
+  for (int i = 0; i < 7; i++) is2[i] = 0; // XXX
+  for (int i = 0; i < 7; i++) is3[i] = 0; // XXX
   k = down1 (level2, is);
   if (is[TC])
     gen (GETw1n, is[CV]);
@@ -172,7 +175,10 @@ static int level1 (int is[]) {
 }
 
 static int level2 (int is1[]) {
-  int is2[7], is3[7], k, flab, endlab, *before, *after;
+  // XXX int is2[7], is3[7], k, flab, endlab, *before, *after;
+  int is2[7], is3[7], k, flab, endlab;
+  for (int i = 0; i < 7; i++) is2[i] = 0; // XXX
+  for (int i = 0; i < 7; i++) is3[i] = 0; // XXX
   k = down1 (level3, is1);                   /* expression 1 */
   if (match ("?") == 0) return k;
   dropout (k, NE10f, flab = getlabel (), is1);
@@ -328,6 +334,7 @@ static int level14 (int *is) {
   blanks ();
   if (ch == '[' || ch == '(') {
     int is2[7];                     /* allocate only if needed */
+    for (int i = 0; i < 7; i++) is2[i] = 0; // XXX
     while (1) {
       if (match ("[")) {              /* [subscript] */
         if (ptr == 0) {
@@ -571,7 +578,7 @@ static int chrcon (int *value) {
 }
 
 int string (int *offset) {
-  char c;
+  // char c;
   if (match (quote) == 0) return 0;
   *offset = litptr;
   while (ch != '"') {
@@ -659,6 +666,7 @@ static int down (char * opstr, int opoff, int (*level) (int *), int is[]) {
   while (1) {
     if (nextop (opstr)) {
       int is2[7];     /* allocate only if needed */
+      for (int i = 0; i < 7; i++) is2[i] = 0; // XXX
       bump (opsize);
       opindex += opoff;
       down2 (op[opindex], op2[opindex], level, is, is2);

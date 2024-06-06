@@ -805,8 +805,8 @@ static void outall (char ptr[]) {
 
 static void tosymbol (char * buffer, int value) {
 char *p;
-int zeroes;
-int count;
+//int zeroes;
+//int count;
   p = buffer + 5;
   *p-- = 0;
   while (value > 0 && p > buffer)
