@@ -544,6 +544,9 @@ static int number (int *value) {
              k = k*16 + (inbyte () - '0');
         else k = k*16 + 10 + (toupper (inbyte ()) - 'A');
         }
+// XXX sign extend 16 bits to 32
+        if (k & 0x8000)
+          k |= 0xffff0000;
       }
     else while (ch >= '0' && ch <= '7')
       k = k*8 + (inbyte () - '0');
