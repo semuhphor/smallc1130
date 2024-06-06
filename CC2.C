@@ -167,7 +167,7 @@ static void ifline (void) {
 }
 
 void inln (void) {           /* numerous revisions */
-  int k;
+  //int k;
   FILE * unit;
   poll (1);           /* allow operator interruption */
   if (input == SC_EOF)
@@ -207,7 +207,7 @@ int inbyte (void) {
 */
 int symname (char * sname) {
   int k;
-  char c;
+  //char c;
   blanks ();
   if (alpha (ch) == 0)
     return (*sname = 0);

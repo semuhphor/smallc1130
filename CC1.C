@@ -340,7 +340,7 @@ void init (int size, int ident, int * dim) {
 */
 static int needsub (void) {
   int val;
- 
+  val = 0; // XXX
   if (match ("]"))
     return 0;      /* null size */
  
@@ -560,7 +560,8 @@ void dofunction (void) {
 */
 static void doargs (int type) {
   int id, sz;
-  char c, *ptr;
+  // char c, *ptr;
+  char *ptr;
 
   while (1)
   {
@@ -595,7 +596,7 @@ static void doargs (int type) {
 */
 static int decl (int type, int aid, int *id, int *sz) {
   int n, p;
-
+  n = 0; // XXX
   if (match ("("))
     p = 1;
 
