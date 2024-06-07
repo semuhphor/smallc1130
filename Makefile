@@ -2,7 +2,7 @@ CC = clang
 #CCFLAGS = -std=c89 -x c
 CCFLAGS = -x c -m32
 CCFLAGS += -O0 -g
-CCFLAGS += -D DEBUG=1
+#CCFLAGS += -D DEBUG=1
 LDFLAGS = -m32
 
 all : cc1130 test
