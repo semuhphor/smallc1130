@@ -511,8 +511,8 @@ int getlabel (void) {
 ** get integer of length len from address addr
 ** (byte sequence set by "putint")
 */
-int getint (char *addr, int len) {
-  int i;
+long getint (char *addr, int len) {
+  long i;
   i = *(addr + --len);  /* high order byte sign extended */
   while (len--)
     i = (i << 8) | *(addr + len) & 255;
@@ -523,9 +523,10 @@ int getint (char *addr, int len) {
 ** put integer i of length len into address addr
 ** (low byte first)
 */
-void putint (int i, char * addr, int len) {
+void putint (long i, char * addr, int len) {
 #ifdef DEBUG
-if (len == 2) { int j = i & 0xffff0000; if (j != 0 && j != 0xffff0000) printf ("============> putint %d\n", i);};
+if (len == 2) { long j = i & 0xffffffffffff0000; if (j != 0 && j != 0xffffffffffff0000) printf ("============> putint %d\n", i);};
+if (len == 4) { long j = i & 0xffffffff00000000; if (j != 0 && j != 0xffffffff00000000) printf ("============> putint %d\n", i);};
 #endif
   while (len--) {
     *addr++ = i;
