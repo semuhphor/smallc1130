@@ -335,8 +335,8 @@ extern int usexpr; /* true if value of expression is used */
 
 
 void parse (void);
-int dodeclare (int class);
-void declglb (int type, int class);
+int dodeclare (int klass);
+void declglb (int type, int klass);
 void initials (int size, int ident, int dim);
 void init (int size, int ident, int * dim);
 void doinclude (void);
@@ -346,7 +346,7 @@ void dofunction (void);
 char * findglb (char * sname);
 char * findloc (char * sname);
 char * nextsym (char * entry);
-char * addsym(char * sname, int id, int type, int size, int value, char **lgpp, int class);
+char * addsym(char * sname, int id, int type, int size, int value, char **lgpp, int klass);
 void ask (void);
 void openfile (void);
 void mustfile (void);

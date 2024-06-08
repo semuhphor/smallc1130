@@ -367,10 +367,10 @@ int endst (void) {
 
 /*********** symbol table management functions ***********/
 
-char * addsym(char * sname, int id, int type, int size, int value, char **lgpp, int class) {
+char * addsym(char * sname, int id, int type, int size, int value, char **lgpp, int klass) {
 #ifdef DEBUG
   printf ("sname:%s id:%d type:%d size:%d value:%d, lgpp:%p, class:%d, symno:%d\n",
-    sname, id, type, size, value, *lgpp, class, symno);
+    sname, id, type, size, value, *lgpp, klass, symno);
 #endif
   if (lgpp == & glbptr) {
     if ((cptr2 = findglb (sname)))
@@ -388,7 +388,7 @@ char * addsym(char * sname, int id, int type, int size, int value, char **lgpp, 
   }
   cptr[IDENT] = id;
   cptr[TYPE]  = type;
-  cptr[CLASS] = class;
+  cptr[CLASS] = klass;
   putint (size, cptr + SIZE, 2);
 // XXX Some symbols' values are host addresses; increase the OFFSET field size to  4 bytes
   putint (value, cptr + OFFSET, OFFSET_SZ);
@@ -515,7 +515,7 @@ long getint (char *addr, int len) {
   long i;
   i = *(addr + --len);  /* high order byte sign extended */
   while (len--)
-    i = (i << 8) | *(addr + len) & 255;
+    i = (i << 8) | (*(addr + len) & 255);
   return i;
 }
 

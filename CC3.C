@@ -329,7 +329,8 @@ static int level13 (long is[])  {
   }
 
 static int level14 (long *is) {
-  int k, konst, val;
+  //int k, konst, val;
+  int k;
   char *ptr, *before, *start;
   k = primary (is);
   ptr = (char *) (is[ST]);	// XXX added cast

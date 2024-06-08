@@ -1,6 +1,7 @@
 CC = clang
-#CCFLAGS = -std=c89
-CCFLAGS = -x c 
+#CCFLAGS += -std=c89
+CCFLAGS += -x c 
+CCFLAGS += -Wall
 #CCFLAGS = -m32
 CCFLAGS += -O0 -g
 #CCFLAGS += -D DEBUG=1
