@@ -131,7 +131,7 @@ static int level1 (long is[]) {
   int k, oper, oper2;
   long is2[7], is3[2];
   for (int i = 0; i < 7; i++) is2[i] = 0; // XXX
-  for (int i = 0; i < 7; i++) is3[i] = 0; // XXX
+  for (int i = 0; i < 2; i++) is3[i] = 0; // XXX
   k = down1 (level2, is);
   if (is[TC])
     gen (GETw1n, is[CV]);
