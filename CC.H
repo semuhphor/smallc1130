@@ -18,13 +18,13 @@
 #define TYPE     1
 #define CLASS    2
 #define SIZE     3
-// XXX Some symbols' values are host addresses; increase the OFFSET field size to  4 bytes
+// XXX Some symbols' values are host addresses; increase the OFFSET field size to  8 bytes
 #define OFFSET   5
-#define OFFSET_SZ   4
+#define OFFSET_SZ   8
 //#define SYMNO	 7
-#define SYMNO	 9
+#define SYMNO	 13
 //#define NAME     9
-#define NAME     11
+#define NAME     15
 
 //#define SYMAVG  14
 #define SYMAVG  16
@@ -335,8 +335,8 @@ extern int usexpr; /* true if value of expression is used */
 
 
 void parse (void);
-int dodeclare (int class);
-void declglb (int type, int class);
+int dodeclare (int klass);
+void declglb (int type, int klass);
 void initials (int size, int ident, int dim);
 void init (int size, int ident, int * dim);
 void doinclude (void);
@@ -346,7 +346,7 @@ void dofunction (void);
 char * findglb (char * sname);
 char * findloc (char * sname);
 char * nextsym (char * entry);
-char * addsym(char * sname, int id, int type, int size, int value, char **lgpp, int class);
+char * addsym(char * sname, int id, int type, int size, int value, char **lgpp, int klass);
 void ask (void);
 void openfile (void);
 void mustfile (void);
@@ -376,8 +376,8 @@ char * readwhile (char *ptr);
 int alpha (char c);
 int an (char c);
 int getlabel (void);
-int getint (char *addr, int len);
-void putint (int i, char * addr, int len);
+long getint (char *addr, int len);
+void putint (long i, char * addr, int len);
 void lout (char * line, FILE * fd);
 void illname (void);
 void multidef (char *sname);
@@ -399,7 +399,7 @@ void stowlit (int value, int size);
 void dumplits (int size);
 void dumpzero (int size, int count);
 void point (void);
-void gen (int pcode, int value);
+void gen (int pcode, long value);
 void toseg (int newseg);
 void delwhile (void);
 void setstage (int ** before, int ** start);

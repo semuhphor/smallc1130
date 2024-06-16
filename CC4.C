@@ -13,7 +13,7 @@ static int peep (int * seq);
 static int isfree (int reg, int *pp);
 static int * getpop (int *next);
 static void newline (void);
-static void outcode (int pcode, int value);
+static void outcode (int pcode, long value);
 static void outline (char ptr[]);
 static void outsymno (char *ptr); 
 static void outname (char *ptr);
@@ -433,7 +433,7 @@ void setstage (int ** before, int ** start) {
 /*
 ** generate code in staging buffer.
 */
-void gen (int pcode, int value) {
+void gen (int pcode, long value) {
   int newcsp;
 #ifdef DEBUG
 outstr ("gen pcode "); outdec (pcode);  outstr (" value "); outdec (value); newline ();
@@ -701,7 +701,7 @@ static void newline (void) {
 /*
 ** output assembly code.
 */
-static void outcode (int pcode, int value) {
+static void outcode (int pcode, long value) {
   int part, skip, count;
   char *cp, *back;
   part = 0;

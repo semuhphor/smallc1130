@@ -367,10 +367,10 @@ int endst (void) {
 
 /*********** symbol table management functions ***********/
 
-char * addsym(char * sname, int id, int type, int size, int value, char **lgpp, int class) {
+char * addsym(char * sname, int id, int type, int size, int value, char **lgpp, int klass) {
 #ifdef DEBUG
   printf ("sname:%s id:%d type:%d size:%d value:%d, lgpp:%p, class:%d, symno:%d\n",
-    sname, id, type, size, value, *lgpp, class, symno);
+    sname, id, type, size, value, *lgpp, klass, symno);
 #endif
   if (lgpp == & glbptr) {
     if ((cptr2 = findglb (sname)))
@@ -388,7 +388,7 @@ char * addsym(char * sname, int id, int type, int size, int value, char **lgpp, 
   }
   cptr[IDENT] = id;
   cptr[TYPE]  = type;
-  cptr[CLASS] = class;
+  cptr[CLASS] = klass;
   putint (size, cptr + SIZE, 2);
 // XXX Some symbols' values are host addresses; increase the OFFSET field size to  4 bytes
   putint (value, cptr + OFFSET, OFFSET_SZ);
@@ -511,11 +511,11 @@ int getlabel (void) {
 ** get integer of length len from address addr
 ** (byte sequence set by "putint")
 */
-int getint (char *addr, int len) {
-  int i;
+long getint (char *addr, int len) {
+  long i;
   i = *(addr + --len);  /* high order byte sign extended */
   while (len--)
-    i = (i << 8) | *(addr + len) & 255;
+    i = (i << 8) | (*(addr + len) & 255);
   return i;
 }
 
@@ -523,9 +523,10 @@ int getint (char *addr, int len) {
 ** put integer i of length len into address addr
 ** (low byte first)
 */
-void putint (int i, char * addr, int len) {
+void putint (long i, char * addr, int len) {
 #ifdef DEBUG
-if (len == 2) { int j = i & 0xffff0000; if (j != 0 && j != 0xffff0000) printf ("============> putint %d\n", i);};
+if (len == 2) { long j = i & 0xffffffffffff0000; if (j != 0 && j != 0xffffffffffff0000) printf ("============> putint %d\n", i);};
+if (len == 4) { long j = i & 0xffffffff00000000; if (j != 0 && j != 0xffffffff00000000) printf ("============> putint %d\n", i);};
 #endif
   while (len--) {
     *addr++ = i;

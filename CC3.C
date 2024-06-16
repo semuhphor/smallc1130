@@ -18,38 +18,38 @@
 #define OP 5   /* is[OP] - code of highest/last binary operator */
 #define SA 6   /* is[SA] - stage address of "op 0" code, else 0 */
 
-static void zerojump (int oper, int label, int is[]);
-static int level1 (int is[]);
-static int level2 (int is1[]);
-static int level3 (int is[]);
-static int level4 (int is[]);
-static int level5 (int is[]);
-static int level6 (int is[]);
-static int level7 (int is[]);
-static int level8 (int is[]);
-static int level9 (int is[]);
-static int level10 (int is[]);
-static int level11 (int is[]);
-static int level12 (int is[]);
-static int level13 (int is[]);
-static int level14 (int is[]);
-static int primary (int *is);
+static void zerojump (int oper, int label, long is[]);
+static int level1 (long is[]);
+static int level2 (long is1[]);
+static int level3 (long is[]);
+static int level4 (long is[]);
+static int level5 (long is[]);
+static int level6 (long is[]);
+static int level7 (long is[]);
+static int level8 (long is[]);
+static int level9 (long is[]);
+static int level10 (long is[]);
+static int level11 (long is[]);
+static int level12 (long is[]);
+static int level13 (long is[]);
+static int level14 (long is[]);
+static int primary (long *is);
 static void experr (void);
 static void callfunc (char *ptr);
-static int dbl (int oper, int is1[], int is2[]);
-static void step (int oper, int is[], int oper2);
-static void store (int is[]);
-static void fetch (int is[]);
-static int constant (int is[]);
-static int number (int *value);
-static int chrcon (int *value);
+static int dbl (int oper, long is1[], long is2[]);
+static void step (int oper, long is[], int oper2);
+static void store (long is[]);
+static void fetch (long is[]);
+static int constant (long is[]);
+static int number (long *value);
+static int chrcon (long *value);
 static int litchar (void);
-static int skim (char * opstr, int tcode, int dropval, int endval, int (*level) (int *), int is[]);
-static void dropout (int k, int tcode, int exit1, int is[]);
-static int down (char * opstr, int opoff, int (* level) (int *), int is[]);
-static int down1 (int (*level) (int *), int is[]);
-static void down2 (int oper, int oper2, int (*level) (int *), int is[], int is2[]);
-static int nosign (int is[]);
+static int skim (char * opstr, int tcode, int dropval, int endval, int (*level) (long *), long is[]);
+static void dropout (int k, int tcode, int exit1, long is[]);
+static int down (char * opstr, int opoff, int (* level) (long *), long is[]);
+static int down1 (int (*level) (long *), long is[]);
+static void down2 (int oper, int oper2, int (*level) (long *), long is[], long is2[]);
+static int nosign (long is[]);
 static int calc (int left, int oper, int right);
 static int calc2 (unsigned int left, int oper, unsigned int right);
 
@@ -66,7 +66,7 @@ int constexpr (int *val) {
 }
 
 void expression (int *con, int *val) {
-  int is[7];
+  long is[7];
   for (int i = 0; i < 7; i++) is[i] = 0; // XXX
   if (level1 (is))
     fetch (is);
@@ -75,7 +75,7 @@ void expression (int *con, int *val) {
 }
 
 void test (int label, int parens) {
-  int is[7];
+  long is[7];
   for (int i = 0; i < 7; i++) is[i] = 0; // XXX
   int *before, *start;
   if (parens)
@@ -120,17 +120,18 @@ void test (int label, int parens) {
 /*
 ** test primary register against zero and jump if false
 */
-static void zerojump (int oper, int label, int is[]) {
+static void zerojump (int oper, int label, long is[]) {
   clearstage ((int *) (is[SA]), 0);       /* purge conventional code */	// XXX added cast
   gen (oper, label);
 }
 
 /***************** precedence levels ******************/
 
-static int level1 (int is[]) {
-  int k, is2[7], is3[2], oper, oper2;
+static int level1 (long is[]) {
+  int k, oper, oper2;
+  long is2[7], is3[2];
   for (int i = 0; i < 7; i++) is2[i] = 0; // XXX
-  for (int i = 0; i < 7; i++) is3[i] = 0; // XXX
+  for (int i = 0; i < 2; i++) is3[i] = 0; // XXX
   k = down1 (level2, is);
   if (is[TC])
     gen (GETw1n, is[CV]);
@@ -174,9 +175,10 @@ static int level1 (int is[]) {
   return 0;
 }
 
-static int level2 (int is1[]) {
-  // XXX int is2[7], is3[7], k, flab, endlab, *before, *after;
-  int is2[7], is3[7], k, flab, endlab;
+static int level2 (long is1[]) {
+  // XXX long is2[7], is3[7], k, flab, endlab, *before, *after;
+  long is2[7], is3[7];
+  int k, flab, endlab;
   for (int i = 0; i < 7; i++) is2[i] = 0; // XXX
   for (int i = 0; i < 7; i++) is3[i] = 0; // XXX
   k = down1 (level3, is1);                   /* expression 1 */
@@ -210,18 +212,18 @@ static int level2 (int is1[]) {
   return 0;
   }
 
-static int level3 (int is[]) {return skim ("||", EQ10f, 1, 0, level4,  is);}
-static int level4 (int is[]) {return skim ("&&", NE10f, 0, 1, level5,  is);}
-static int level5 (int is[]) {return down ("|",            0, level6,  is);}
-static int level6 (int is[]) {return down ("^",            1, level7,  is);}
-static int level7 (int is[]) {return down ("&",            2, level8,  is);}
-static int level8 (int is[]) {return down ("== !=",        3, level9,  is);}
-static int level9 (int is[]) {return down ("<= >= < >",    5, level10, is);}
-static int level10 (int is[]) {return down (">> <<",        9, level11, is);}
-static int level11 (int is[]) {return down ("+ -",         11, level12, is);}
-static int level12 (int is[]) {return down ("* / %",       13, level13, is);}
+static int level3 (long is[]) {return skim ("||", EQ10f, 1, 0, level4,  is);}
+static int level4 (long is[]) {return skim ("&&", NE10f, 0, 1, level5,  is);}
+static int level5 (long is[]) {return down ("|",            0, level6,  is);}
+static int level6 (long is[]) {return down ("^",            1, level7,  is);}
+static int level7 (long is[]) {return down ("&",            2, level8,  is);}
+static int level8 (long is[]) {return down ("== !=",        3, level9,  is);}
+static int level9 (long is[]) {return down ("<= >= < >",    5, level10, is);}
+static int level10 (long is[]) {return down (">> <<",        9, level11, is);}
+static int level11 (long is[]) {return down ("+ -",         11, level12, is);}
+static int level12 (long is[]) {return down ("* / %",       13, level13, is);}
 
-static int level13 (int is[])  {
+static int level13 (long is[])  {
   int k;
   char *ptr;
   if (match ("++")) {                 /* ++lval */
@@ -300,7 +302,7 @@ static int level13 (int is[])  {
     ptr = (char *) (is[ST]);	// XXX added cast
     is[TA] = ptr[TYPE];
     if (is[TI]) return 0;
-    gen (POINT1m, (int) ptr);	// XXX added cast
+    gen (POINT1m, (long) ptr);	// XXX added cast
     is[TI] = ptr[TYPE];
     return 0;
     }
@@ -326,14 +328,15 @@ static int level13 (int is[])  {
     }
   }
 
-static int level14 (int *is) {
-  int k, konst, val;
+static int level14 (long *is) {
+  //int k, konst, val;
+  int k;
   char *ptr, *before, *start;
   k = primary (is);
   ptr = (char *) (is[ST]);	// XXX added cast
   blanks ();
   if (ch == '[' || ch == '(') {
-    int is2[7];                     /* allocate only if needed */
+    long is2[7];                     /* allocate only if needed */
     for (int i = 0; i < 7; i++) is2[i] = 0; // XXX
     while (1) {
       if (match ("[")) {              /* [subscript] */
@@ -379,14 +382,14 @@ static int level14 (int *is) {
       }
     }
   if (ptr && ptr[IDENT] == FUNCTION) {
-    gen (POINT1m, (int) ptr);	// XXX added cast
+    gen (POINT1m, (long) ptr);	// XXX added cast
     is[ST] = 0;
     return 0;
     }
   return k;
   }
 
-static int primary (int *is) {
+static int primary (long *is) {
   char *ptr, sname[NAMESIZE];
   int k;
   if (match ("(")) {                  /* (subexpression) */ 
@@ -402,7 +405,7 @@ static int primary (int *is) {
         return 0;
       }
       gen (POINT1s, getint (ptr+OFFSET, OFFSET_SZ));
-      is[ST] = (int) ptr;	// XXX added cast
+      is[ST] = (long) ptr;	// XXX added cast
       is[TI] = ptr[TYPE];
       if (ptr[IDENT] == ARRAY) {
         is[TA] = ptr[TYPE];
@@ -415,10 +418,10 @@ static int primary (int *is) {
       return 1;
     }
     if ((ptr = findglb (sname))) {      /* is global */
-      is[ST] = (int) ptr;	// XXX added cast
+      is[ST] = (long) ptr;	// XXX added cast
       if (ptr[IDENT] != FUNCTION) {
         if (ptr[IDENT] == ARRAY) {
-          gen (POINT1m, (int) ptr); // XXX added cast
+          gen (POINT1m, (long) ptr); // XXX added cast
           is[TI] = 
           is[TA] = ptr[TYPE];
           return 0;
@@ -429,7 +432,7 @@ static int primary (int *is) {
       }
     }
     else
-      is[ST] = (int) addsym (sname, FUNCTION, INT, 0, 0, & glbptr, AUTOEXT); // XXX added cast
+      is[ST] = (long) addsym (sname, FUNCTION, INT, 0, 0, & glbptr, AUTOEXT); // XXX added cast
     return 0;
   }
   if (constant (is) == 0)
@@ -465,7 +468,7 @@ static void callfunc (char *ptr) {      /* symbol table entry or 0 */
   if (streq (ptr + NAME, "CCARGC") == 0)
     gen (ARGCNTn, nargs); /* >> LBPW); */
   if (ptr)
-    gen (CALLm, (int) ptr); // XXX added cast
+    gen (CALLm, (long) ptr); // XXX added cast
   else 
     gen (CALL1, 0);
   gen (ADDSP, csp + nargs);
@@ -474,14 +477,14 @@ static void callfunc (char *ptr) {      /* symbol table entry or 0 */
 /*
 ** true if is2's operand should be doubled
 */
-static int dbl (int oper, int is1[], int is2[]) {
+static int dbl (int oper, long is1[], long is2[]) {
   if ((oper != ADD12 && oper != SUB12)
   || (is1[TA] >> 2 != BPW)
   || (is2[TA])) return 0;
   return 0;
   }
 
-static void step (int oper, int is[], int oper2) {
+static void step (int oper, long is[], int oper2) {
   fetch (is);
   gen (oper, is[TA] ? (is[TA] >> 2) : 1);
   store (is);
@@ -489,7 +492,7 @@ static void step (int oper, int is[], int oper2) {
     gen (oper2, is[TA] ? (is[TA] >> 2) : 1);
 }
 
-static void store (int is[]) {
+static void store (long is[]) {
   char *ptr;
   if (is[TI]) {                    /* putstk */
     if (is[TI] >> 2 == 1)
@@ -499,12 +502,12 @@ static void store (int is[]) {
     ptr = (char *) (is[ST]);		// XXX added cast
     if (ptr[IDENT] != POINTER
     && ptr[TYPE] >> 2 == 1)
-         gen (PUTbm1, (int) ptr);		// XXX added cast
-    else gen (PUTwm1, (int) ptr);		// XXX added cast
+         gen (PUTbm1, (long) ptr);		// XXX added cast
+    else gen (PUTwm1, (long) ptr);		// XXX added cast
   }
 }
 
-static void fetch (int is[]) {
+static void fetch (long is[]) {
   char *ptr;
   ptr = (char *) (is[ST]);	// XXX added cast
   if (is[TI]) {                                   /* indirect */
@@ -516,15 +519,15 @@ static void fetch (int is[]) {
     } 
   else {                                         /* direct */
     if (ptr[IDENT] == POINTER
-    || ptr[TYPE] >> 2 == BPW)  gen (GETw1m,  (int) ptr); // XXX added cast
+    || ptr[TYPE] >> 2 == BPW)  gen (GETw1m,  (long) ptr); // XXX added cast
     else {
-      if (ptr[TYPE] & UNSIGNED) gen (GETb1mu, (int) ptr);// XXX added cast
-      else                     gen (GETb1m,  (int) ptr);// XXX added cast
+      if (ptr[TYPE] & UNSIGNED) gen (GETb1mu, (long) ptr);// XXX added cast
+      else                     gen (GETb1m,  (long) ptr);// XXX added cast
       }
     }
   }
 
-static int constant (int is[]) {
+static int constant (long is[]) {
   int offset;
   if     ((is[TC] = number (is + CV))) gen (GETw1n,  is[CV]);
   else if ((is[TC] = chrcon (is + CV))) gen (GETw1n,  is[CV]);
@@ -533,7 +536,7 @@ static int constant (int is[]) {
   return 1;
 }
 
-static int number (int *value) {
+static int number (long *value) {
   int k, minus;
   k = minus = 0;
   while (1) {
@@ -567,7 +570,7 @@ static int number (int *value) {
   else                 return (INT);
 }
 
-static int chrcon (int *value) {
+static int chrcon (long *value) {
   int k;
   k = 0;
   if (match ("'") == 0) return 0;
@@ -622,7 +625,7 @@ static int litchar (void) {
 /*
 ** skim over terms adjoining || and && operators
 */
-static int skim (char * opstr, int tcode, int dropval, int endval, int (*level) (int *), int is[]) {
+static int skim (char * opstr, int tcode, int dropval, int endval, int (*level) (long *), long is[]) {
   int k, droplab, endlab;
   droplab = 0;
   while (1) {
@@ -649,7 +652,7 @@ static int skim (char * opstr, int tcode, int dropval, int endval, int (*level) 
 /*
 ** test for early dropout from || or && sequences
 */
-static void dropout (int k, int tcode, int exit1, int is[]) {
+static void dropout (int k, int tcode, int exit1, long is[]) {
   if (k) fetch (is);
   else if (is[TC]) gen (GETw1n, is[CV]);
   gen (tcode, exit1);          /* jumps on false */
@@ -658,14 +661,14 @@ static void dropout (int k, int tcode, int exit1, int is[]) {
 /*
 ** drop to a lower level
 */
-static int down (char * opstr, int opoff, int (*level) (int *), int is[]) {
+static int down (char * opstr, int opoff, int (*level) (long *), long is[]) {
   int k;
   k = down1 (level, is);
   if (nextop (opstr) == 0) return k;
   if (k) fetch (is);
   while (1) {
     if (nextop (opstr)) {
-      int is2[7];     /* allocate only if needed */
+      long is2[7];     /* allocate only if needed */
       for (int i = 0; i < 7; i++) is2[i] = 0; // XXX
       bump (opsize);
       opindex += opoff;
@@ -678,7 +681,7 @@ static int down (char * opstr, int opoff, int (*level) (int *), int is[]) {
 /*
 ** unary drop to a lower level
 */
-static int down1 (int (*level) (int *), int is[]) {
+static int down1 (int (*level) (long *), long is[]) {
   int k, *before, *start;
   setstage (& before, & start);
   k = (*level) (is);
@@ -689,21 +692,21 @@ static int down1 (int (*level) (int *), int is[]) {
 /*
 ** binary drop to a lower level
 */
-static void down2 (int oper, int oper2, int (*level) (int *), int is[], int is2[]) {
+static void down2 (int oper, int oper2, int (*level) (long *), long is[], long is2[]) {
   int *before, *start;
   char *ptr;
   setstage (& before, & start);
   is[SA] = 0;                     /* not "... op 0" syntax */
   if (is[TC]) {                    /* consant op unknown */
     if (down1 (level, is2)) fetch (is2);
-    if (is[CV] == 0) is[SA] = (int) snext;	// XXX added cast
+    if (is[CV] == 0) is[SA] = (long) snext;	// XXX added cast
     gen (GETw2n, is[CV] << dbl (oper, is2, is));
     }
   else {                          /* variable op unknown */
     gen (PUSH1, 0);                /* at start in the buffer */
     if (down1 (level, is2)) fetch (is2);
     if (is2[TC]) {                 /* variable op constant */
-      if (is2[CV] == 0) is[SA] = (int) start;	// XXX added cast
+      if (is2[CV] == 0) is[SA] = (long) start;	// XXX added cast
       csp += BPW;                 /* adjust stack and */
       clearstage (before, 0);      /* discard the PUSH */
       if (oper == ADD12) {         /* commutative */
@@ -755,7 +758,7 @@ static void down2 (int oper, int oper2, int (*level) (int *), int is[], int is2[
 /*
 ** unsigned operand?
 */
-static int nosign (int is[]) {
+static int nosign (long is[]) {
   char *ptr;
   if (is[TA]
   || is[TC] == UINT

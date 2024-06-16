@@ -195,20 +195,20 @@ void parse (void) {
 /*
 ** test for global declarations
 */
-int dodeclare (int class) {
+int dodeclare (int klass) {
   if (amatch ("char", 4))   
-    declglb (CHR, class);
+    declglb (CHR, klass);
  
   else if (amatch ("unsigned", 8)) {
     if (amatch ("char", 4))   
-      declglb (UCHR, class);
+      declglb (UCHR, klass);
     else {
       amatch ("int", 3);   
-      declglb (UINT, class);
+      declglb (UINT, klass);
     }
   }
-  else if (amatch ("int", 3) || class == EXTERNAL)   
-    declglb (INT,  class);
+  else if (amatch ("int", 3) || klass == EXTERNAL)   
+    declglb (INT,  klass);
  
   else
     return 0;
@@ -221,7 +221,7 @@ int dodeclare (int class) {
 /*
 ** declare a static variable
 */
-void declglb (int type, int class) {
+void declglb (int type, int klass) {
   int id, dim;
   while (1) {
     if (endst ())
@@ -254,16 +254,16 @@ void declglb (int type, int class) {
         dim = needsub ();
       }
     }
-    if (class == EXTERNAL)
+    if (klass == EXTERNAL)
       external (ssname, type >> 2, id);
 
     else if (id != FUNCTION)
       initials (type >> 2, id, dim);
    
     if (id == POINTER)
-      addsym (ssname, id, type, BPW, 0, &glbptr, class);
+      addsym (ssname, id, type, BPW, 0, &glbptr, klass);
    
-    else addsym (ssname, id, type, dim * (type >> 2), 0, &glbptr, class);
+    else addsym (ssname, id, type, dim * (type >> 2), 0, &glbptr, klass);
    
     if (match (",") == 0)
       return;
